@@ -7,3 +7,11 @@ pypdf
 python-dotenv
 requests
 tiktoken
+
+requests
+python-dotenv
+
+langchain-community
+langchain-text-splitters
+faiss-cpu
+pypdf
