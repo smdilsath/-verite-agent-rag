@@ -1,37 +1,33 @@
-def detect_intent(message):
+# agent/intent.py
 
-    message = message.lower()
+def classify_intent(user_input: str) -> str:
+    text = user_input.lower().strip()
 
-    greetings = ["hi", "hello", "hey", "good morning", "good evening"]
-    smalltalk = ["how are you", "what can you do", "who are you"]
-    followup_words = ["that", "this", "it", "they", "those", "them"]
+    greetings = ["hi", "hello", "hey"]
+    smalltalk = ["how are you", "who are you", "what can you do"]
 
-    # Greeting
-    if any(word in message for word in greetings):
+    if any(text.startswith(g) for g in greetings):
         return "greeting"
 
-    # Small talk
-    if any(word in message for word in smalltalk):
+    if any(x in text for x in smalltalk):
         return "smalltalk"
 
-    # Follow-up question
-    if any(word in message.split() for word in followup_words):
-        return "followup"
-
-    # Verité related topics
-    verite_keywords = [
-        "verite",
-        "forced labour",
-        "labour",
-        "governance",
-        "policy",
-        "fiscal",
-        "public finance",
-        "research",
-        "sri lanka"
+    out_of_scope = [
+        "virat kohli", "cricket", "football",
+        "movie", "actor", "weather", "bitcoin"
     ]
 
-    if any(word in message for word in verite_keywords):
+    if any(x in text for x in out_of_scope):
+        return "out_of_scope"
+
+    # Borderline but Verité-relevant concepts
+    verite_concepts = [
+        "forced labour", "forced labor",
+        "governance", "public finance",
+        "labour rights", "debt", "imf"
+    ]
+
+    if any(x in text for x in verite_concepts):
         return "verite_query"
 
-    return "unknown"
+    return "verite_query"
