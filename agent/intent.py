@@ -1,41 +1,40 @@
 # agent/intent.py
 
-import re
+def classify_intent(text: str) -> str:
+    t = text.lower().strip()
 
-def classify_intent(user_input: str) -> str:
-    text = user_input.lower().strip()
-
-    # 1️⃣ Greetings
-    if re.match(r"^(hi|hello|hey|good morning|good evening)\b", text):
+    # Greeting
+    if t in {"hi", "hello", "hey"}:
         return "greeting"
 
-    # 2️⃣ Small talk
-    if text in {"how are you", "how are you?", "what can you do", "what can you do?"}:
+    # Small talk
+    if "how are you" in t or "thank you" in t:
         return "smalltalk"
 
-    # 3️⃣ Explicit out-of-scope (people, sports, entertainment, general knowledge)
-    out_of_scope_keywords = [
-        "who is", "who's", "virat", "kohli", "messi", "cricket",
-        "football", "actor", "movie", "song", "president of",
-        "capital of", "weather", "google", "chatgpt"
+    # Follow-up / memory-based questions
+    follow_ups = [
+        "which publication",
+        "which report",
+        "which document",
+        "what page",
+        "cite",
+        "source",
+        "that",
     ]
+    if any(p in t for p in follow_ups):
+        return "verite_query"
 
-    if any(k in text for k in out_of_scope_keywords):
-        return "out_of_scope"
-
-    # 4️⃣ Verité-related keywords
+    # Verité-related keywords
     verite_keywords = [
-        "verité", "verite",
-        "rti", "right to information",
+        "verité",
+        "rti",
+        "proactive disclosure",
         "beneficial ownership",
         "forced labour",
         "public authority",
-        "proactive disclosure",
-        "imf", "fatf"
     ]
-
-    if any(k in text for k in verite_keywords):
+    if any(k in t for k in verite_keywords):
         return "verite_query"
 
-    # 5️⃣ Default → out of scope (SAFE DEFAULT)
+    # Otherwise → out of scope
     return "out_of_scope"
