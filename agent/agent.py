@@ -18,29 +18,39 @@ if not GROQ_API_KEY:
     raise RuntimeError("❌ GROQ_API_KEY not set")
 
 client = Groq(api_key=GROQ_API_KEY)
-
 MODEL_NAME = "llama-3.1-8b-instant"
 
 # --------------------------------------------------
-# SYSTEM PROMPT
+# SYSTEM PROMPT (FIXES YOUR ISSUE)
 # --------------------------------------------------
 SYSTEM_PROMPT = """
-You are VeriBot, an AI assistant for Verité Research publications.
-
+You are VeriBot, an AI assistant specialised in Verité Research publications.
 Persona:
-- Helpful, factual, professional
+- Professional, factual, analytical
+- Speak clearly and concisely
+- Do NOT copy text verbatim unless quoting
+Scope rules:
 - ONLY answer questions related to Verité Research publications
-- Politely decline unrelated questions
-
-Rules:
-- Use retrieved Verité documents when needed
-- Cite the source document name and page number
-- Do NOT hallucinate sources
-- If the answer is not in the documents, say so clearly
+- Politely refuse unrelated questions
+When answering from documents:
+1. FIRST explain the key finding in your own words
+2. THEN support it with evidence from the documents
+3. DO NOT list exhibits or tables without explanation
+4. Clearly link each claim to a source and page number
+5. If information is incomplete or unclear, say so explicitly
+Citation rules:
+- Use the document title (not file paths)
+- Always include page numbers
+- Tie citations directly to the statements they support
+If the question is general but relevant (e.g. "What is forced labour"):
+- Answer using Verité’s definition if available
+- Clearly state that this is Verité Research’s interpretation
+If the answer is not found in the documents:
+- Say so clearly and do NOT speculate
 """
 
 # --------------------------------------------------
-# SAFE LLM CALL (NON-STREAMING → STABLE)
+# SAFE LLM CALL (STABLE, NON-STREAMING)
 # --------------------------------------------------
 def call_llm(prompt: str) -> str:
     try:
@@ -54,47 +64,67 @@ def call_llm(prompt: str) -> str:
             max_completion_tokens=800,
             top_p=1,
         )
-
         return completion.choices[0].message.content.strip()
 
-    except Exception as e:
-        return f"⚠️ LLM error: {str(e)}"
+    except Exception:
+        return (
+            "⚠️ I’m temporarily unable to generate a response. "
+            "Please try again in a moment."
+        )
 
 # --------------------------------------------------
-# MAIN AGENT LOGIC
+# MAIN AGENT LOGIC (AGENTIC ROUTING)
 # --------------------------------------------------
 def chat(user_input: str) -> str:
     intent = classify_intent(user_input)
 
-    # 1️⃣ Greeting → no search
+    # 1️⃣ Greeting → NO search
     if intent == "greeting":
-        return "Hello! I’m **VeriBot 🤖**, here to help you understand Verité Research publications."
+        return (
+            "Hello! I’m **VeriBot 🤖**, an assistant specialised in "
+            "Verité Research publications."
+        )
 
-    # 2️⃣ Small talk → no search
+    # 2️⃣ Small talk → NO search
     if intent == "smalltalk":
-        return "I focus on explaining Verité Research publications. Ask me a question about them."
+        return (
+            "I focus on explaining Verité Research publications. "
+            "Feel free to ask a related question."
+        )
 
-    # 3️⃣ Out-of-scope → polite refusal
+    # 3️⃣ Out-of-scope → polite refusal (NO SEARCH, NO EXPLANATION)
     if intent == "out_of_scope":
-        return "I’m only here to help with Verité Research publications."
+        return (
+        "I’m only here to help with Verité Research publications. "
+        "I can’t assist with that topic."
+    )
 
-    # 4️⃣ Verité question → vector search
+    # 4️⃣ Verité-related question → VECTOR SEARCH
     try:
         docs = search_verite(user_input)
     except Exception:
-        return "⚠️ My document index is not ready yet. Please try again shortly."
+        return (
+            "⚠️ My document index is not ready yet. "
+            "Please try again shortly."
+        )
 
     if not docs:
-        return "I couldn’t find relevant information in Verité publications for that question."
+        return (
+            "I couldn’t find relevant information in Verité Research "
+            "publications for that question."
+        )
 
-    # Build context with citations
+    # --------------------------------------------------
+    # BUILD CONTEXT (CLEAN & TRACEABLE)
+    # --------------------------------------------------
     context = ""
     for d in docs:
-        source = d.metadata.get("source", "Unknown document")
+        title = d.metadata.get("title", d.metadata.get("source", "Unknown document"))
         page = d.metadata.get("page", "N/A")
+
         context += (
-            f"\n{d.page_content}\n"
-            f"(Source: {source}, Page {page})\n"
+            f"\n[Document: {title}, Page {page}]\n"
+            f"{d.page_content}\n"
         )
 
     history = get_memory()
@@ -102,15 +132,15 @@ def chat(user_input: str) -> str:
     prompt = f"""
 Conversation history:
 {history}
-
-Retrieved context:
+Evidence from Verité Research publications:
 {context}
-
 Question:
 {user_input}
-
-Answer using ONLY the context above.
-Cite the source document and page number clearly.
+Instructions:
+- Explain the answer clearly in your own words first
+- Support each claim with evidence from the documents
+- Cite document title and page number inline
+- Do NOT list exhibits without interpretation
 """
 
     answer = call_llm(prompt)
