@@ -20,22 +20,7 @@ https://dilsath-verite-agent-rag.hf.space/
 
 ---
 
-## 📚 Knowledge Base (5 Verité Publications)
 
-1. **Proposed Beneficial Ownership Register: Two Gaps Undermine Effectiveness** (2024)  
-   https://www.veriteresearch.org/publication/proposed-beneficial-ownership-register-two-gaps-undermine-effectiveness/
-
-2. **Stealth Reduction of Cigarette Tax Rates** (2023)  
-   https://www.veriteresearch.org/publication/stealth-reduction-of-cigarette-tax-rates/
-
-3. **1.3% Primary Expenditure Rule Proposed for Sri Lanka Departs from Economic Theory and Practice** (2024)  
-   https://www.veriteresearch.org/publication/13-primary-expenditure-rule-proposed-for-sri-lanka-departs-from-economic-theory-and-practice/
-
-4. **Proactive Disclosure Under the RTI Act in Sri Lanka: Ranking Key Public Authorities in 2024** (2024)  
-   https://www.veriteresearch.org/publication/proactive-disclosure-under-the-rti-act-in-sri-lanka-ranking-key-public-authorities-in-2024/
-
-5. **Forensic Audit of Central Bank 2019: Assessment of Losses to the EPF** (2023)  
-   https://www.veriteresearch.org/publication/forensic-audit-of-central-bank-2019-assessment-of-losses-to-the-epf/
 
 ---
 
