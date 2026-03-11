@@ -45,6 +45,9 @@ Overall, Verité's evaluation of proactive disclosure under the RTI Act in Sri L
 Answer
 I’m only here to help with Verité Research publications. I can’t assist with that topic
 
+6.Can you explain that more?
+  
+
 
 
 
